@@ -1,0 +1,47 @@
+% Bhojpuri Kosh --- Main Trilingual Dictionary File
+% Compile with: lualatex main.tex
+
+\documentclass[12pt,a4paper]{article}
+
+% Modular config
+\input{config/colors}
+\input{config/fonts}
+\input{config/packages}
+\input{config/layout}
+
+\title{}
+\author{}
+\date{}
+
+\begin{document}
+
+% --- Title Page ---
+\input{components/title/title}
+
+% --- How to Use This Dictionary ---
+\newpage
+\input{components/how_to_use/how_to_use}
+
+% --- Abbreviations ---
+\newpage
+\input{components/abbreviations/abbreviations}
+
+% --- Varnamala ---
+\newpage
+\input{components/varnamala/varnamala}
+
+% --- Trilingual Dictionary (Shabd Kosh) ---
+\newpage
+\input{pages/shabd/shabd}
+
+% --- Future modules (uncomment as created) ---
+% \newpage
+% \input{pages/samasya/samasya}
+% \newpage
+% \input{pages/muhavare/muhavare}
+% \newpage
+% \input{pages/lok-katha/lok-katha}
+% \newpage
+% \input{pages/vyakaran/vyakaran}
+
+\end{document}

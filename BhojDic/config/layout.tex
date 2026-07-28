@@ -1,0 +1,103 @@
+\geometry{
+  a4paper,
+  left=1.8cm,
+  right=1.8cm,
+  top=2.6cm,
+  bottom=2.0cm,
+  headheight=26pt,
+  headsep=14pt
+}
+
+% Classic Dictionary Header & Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\bfseries\color{bpbluedark}\leftmark}
+\fancyhead[R]{\small\bfseries\color{bpbluedark}\rightmark}
+\fancyfoot[C]{\small\color{bpgray}\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{bpblue}\leaders\hrule height \headrulewidth\hfill}}
+
+% Dictionary Letter Heading Macro (e.g. Large Centered 'अ')
+\newcommand{\dictchar}[1]{%
+  \vspace{0.8em}%
+  \markboth{#1}{#1}%
+  {\centerline{\Huge\bfseries\color{bpblue} #1}}%
+  \vspace{0.2em}%
+  {\color{bpblue}\hrule height 1pt}%
+  \vspace{0.8em}%
+}
+
+% Star Priority System Macros (TeX Math Stars for Font Compatibility)
+\newcommand{\starsThree}{{\small\color{bpblue}$\star\star\star$}}
+\newcommand{\starsTwo}{{\small\color{bpgray}$\star\star$}}
+\newcommand{\starsOne}{{\small\color{bpbluedark}$\star$}}
+
+\newcommand{\freqcommon}{\starsThree}
+\newcommand{\freqformal}{\starsTwo}
+\newcommand{\freqrare}{\starsOne}
+
+% Main Dictionary Entry Macro
+% #1: Devanagari Headword
+% #2: Kaithi Script Macros
+% #3: Transliteration
+% #4: Grammatical Tag & Origin/Dialect
+% #5: Star Rating (\starsThree / \starsTwo / \starsOne)
+% #6: Hindi Meaning / Context
+% #7: Bhojpuri Equivalent / Phrasing
+% #8: English Gloss
+\newcommand{\bhojentry}[8]{%
+  \par\noindent
+  \markright{#1}%
+  {\bfseries\large #1} \, #2 \, \textit{\small (#3)} \ \textbf{\small [#4]} \ {#5} \\
+  {\small\textbf{हिन्दी:} #6} \\
+  {\small\textbf{भोजपुरी:} #7} \\
+  {\small\textbf{Eng:} #8}
+  \par\vspace{0.5em}%
+}
+
+% Hierarchical Sub-Entry Macro (Direct Derivatives with ↳)
+\newcommand{\bhojsubentry}[8]{%
+  \par\noindent\hspace*{0.8em}%
+  {\bfseries\small $\hookrightarrow$ #1} \, {\small #2} \, \textit{\scriptsize (#3)} \ \textbf{\scriptsize [#4]} \ {#5} \\
+  \hspace*{0.8em}{\small\textbf{हिन्दी:} #6} \\
+  \hspace*{0.8em}{\small\textbf{भोजपुरी:} #7} \\
+  \hspace*{0.8em}{\small\textbf{Eng:} #8}
+  \par\vspace{0.4em}%
+}
+
+% Compound Word Macro (Double-Indented with →)
+\newcommand{\bhojcompound}[7]{%
+  \par\noindent\hspace*{1.6em}%
+  {\small\color{bpbluedark}$\rightarrow$ \textbf{#1}} \, {\small #2} \, \textit{\scriptsize (#3)} \ \textbf{\scriptsize [#4]} \\
+  \hspace*{1.6em}{\small\textbf{अर्थ:} #5 / #6} \\
+  \hspace*{1.6em}{\small\textbf{Eng:} #7}
+  \par\vspace{0.3em}%
+}
+
+% Example Sentence Macro (Mandatory for ★★★)
+\newcommand{\bhojexample}[2]{%
+  \par\vspace{-0.3em}\noindent\hspace*{0.8em}%
+  {\small\color{bpbluedark}\textbf{उदा.:} ``#1'' \textit{(#2)}}%
+  \par\vspace{0.2em}%
+}
+
+% Cross-Reference Macro (देखें: ...)
+\newcommand{\bhojsee}[1]{%
+  \par\vspace{-0.3em}\noindent\hspace*{0.8em}%
+  {\small\color{bpgray}\textbf{देखें:} #1}%
+  \par\vspace{0.2em}%
+}
+
+% Section formatting
+\titleformat{\section}
+  {\Large\bfseries\color{bpblue}}
+  {}{0em}{}
+  [\vspace{-0.4em}{\color{bpblue}\rule{\textwidth}{0.8pt}}]
+
+\titleformat{\subsection}
+  {\large\bfseries\color{bpbluedark}}
+  {\thesubsection}{0.5em}{}
+
+% Paragraph formatting
+\setlength{\parskip}{0.3em}
+\setlength{\parindent}{0em}

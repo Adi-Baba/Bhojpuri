@@ -1,0 +1,119 @@
+\usepackage{fontspec}
+
+% Set up font fallbacks with HarfBuzz rendering engine (mode=harf) for LuaLaTeX
+% so Devanagari ligatures (क्ष, ज्ञ, र्व, क्र, त्र, आदि) and Kaithi script
+% render with 100% accurate OpenType script shaping.
+\directlua{
+  luaotfload.add_fallback(
+    "bhojfallback",
+    {
+      "Noto Sans Devanagari:mode=harf;script=dev2;language=dflt;",
+      "Noto Sans Kaithi:mode=harf;script=kthi;language=dflt;"
+    }
+  )
+}
+
+% Main font (Noto Sans with HarfBuzz Devanagari and Kaithi fallback)
+\setmainfont{Noto Sans}[RawFeature={fallback=bhojfallback}]
+
+% Explicit font families for direct script styling
+\newfontfamily\kaithifont{Noto Sans Kaithi}[Renderer=HarfBuzz, Script=Kaithi]
+\newfontfamily\devafont{Noto Sans Devanagari}[Renderer=HarfBuzz, Script=Devanagari, Language=Hindi]
+
+% Wrappers
+\newcommand{\K}[1]{{\kaithifont #1}}
+\newcommand{\D}[1]{{\devafont #1}}
+
+% -------------------------------------------------------
+% Kaithi Character Macros (Unicode U+11080 - U+110C1)
+% Prefix \b for Bhojpuri
+% -------------------------------------------------------
+
+% Signs
+\def\bchandra{\char"11080} % Candrabindu
+\def\banus{\char"11081}    % Anusvara
+\def\bvisarga{\char"11082} % Visarga
+
+% Independent Vowels
+\def\ba{\char"11083}       % A
+\def\baa{\char"11084}      % AA
+\def\bi{\char"11085}       % I
+\def\bii{\char"11086}      % II
+\def\bu{\char"11087}       % U
+\def\buu{\char"11088}      % UU
+\def\be{\char"11089}       % E
+\def\bai{\char"1108A}      % AI
+\def\bo{\char"1108B}       % O
+\def\bau{\char"1108C}      % AU
+
+% Consonants
+% Velar
+\def\bka{\char"1108D}       % Ka
+\def\bkha{\char"1108E}      % Kha
+\def\bga{\char"1108F}       % Ga
+\def\bgha{\char"11090}      % Gha
+\def\bnga{\char"11091}      % Nga
+
+% Palatal
+\def\bca{\char"11092}       % Ca
+\def\bcha{\char"11093}      % Cha
+\def\bja{\char"11094}       % Ja
+\def\bjha{\char"11095}      % Jha
+\def\bnja{\char"11096}      % Nya
+
+% Retroflex
+\def\btta{\char"11097}      % TTa (Retroflex T)
+\def\bttha{\char"11098}     % TTha (Retroflex Th)
+\def\bdda{\char"11099}      % DDa (Retroflex D)
+\def\bdddha{\char"1109A}    % DDDha (Retroflex Rha/Ddda)
+\def\bddha{\char"1109B}     % DDha (Retroflex Dh)
+\def\brha{\char"1109C}      % Rha
+\def\bnna{\char"1109D}      % NNa (Retroflex N)
+
+% Dental
+\def\bta{\char"1109E}       % Ta (Dental T)
+\def\btha{\char"1109F}      % Tha (Dental Th)
+\def\bda{\char"110A0}       % Da (Dental D)
+\def\bdha{\char"110A1}      % Dha (Dental Dh)
+\def\bna{\char"110A2}       % Na (Dental N)
+
+% Labial
+\def\bpa{\char"110A3}       % Pa
+\def\bpha{\char"110A4}      % Pha
+\def\bba{\char"110A5}       % Ba
+\def\bbha{\char"110A6}      % Bha
+\def\bma{\char"110A7}       % Ma
+
+% Approximants & Fricatives
+\def\bya{\char"110A8}       % Ya
+\def\bra{\char"110A9}       % Ra
+\def\bla{\char"110AA}       % La
+\def\bva{\char"110AB}       % Va
+\def\bsha{\char"110AC}      % Sha
+\def\bssa{\char"110AD}      % Ssa
+\def\bsa{\char"110AE}       % Sa
+\def\bha{\char"110AF}       % Ha
+
+% Dependent Vowel Signs (Matras)
+\def\bmaa{\char"110B0}      % Matra AA
+\def\bmi{\char"110B1}       % Matra I
+\def\bmii{\char"110B2}      % Matra II
+\def\bmu{\char"110B3}       % Matra U
+\def\bmuu{\char"110B4}      % Matra UU
+\def\bme{\char"110B5}       % Matra E
+\def\bmai{\char"110B6}      % Matra AI
+\def\bmo{\char"110B7}       % Matra O
+\def\bmau{\char"110B8}      % Matra AU
+
+% Signs & Punctuation
+\def\bvir{\char"110B9}      % Virama (Halant)
+\def\bnukta{\char"110BA}    % Nukta
+\def\bdanda{\char"110C0}   % Danda
+\def\bddanda{\char"110C1}  % Double Danda
+
+% Legacy Aliases for backwards compatibility
+\def\btaD{\char"11097}      % retroflex tta
+\def\bthaD{\char"11098}     % retroflex ttha
+\def\bdaD{\char"11099}      % retroflex dda
+\def\bdhaD{\char"1109B}     % retroflex ddha
+\def\bnra{\char"1109D}      % retroflex nna
