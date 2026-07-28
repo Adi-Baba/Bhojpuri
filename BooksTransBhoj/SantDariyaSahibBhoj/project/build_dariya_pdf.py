@@ -10,7 +10,11 @@ TEX_FILE = os.path.join(TEX_DIR, "dariya_sahib_bhojpuri.tex")
 files_to_include = [
     os.path.join(BASE_DIR, "biography", "01_life_and_legacy.txt"),
     os.path.join(BASE_DIR, "books", "dariya_sagar", "01_dariya_sagar_intro_verses.txt"),
+    os.path.join(BASE_DIR, "books", "dariya_sagar", "02_dariya_sagar_srishti_khand.txt"),
+    os.path.join(BASE_DIR, "books", "dariya_sagar", "03_dariya_sagar_satnam_khand.txt"),
     os.path.join(BASE_DIR, "books", "gyan_deepak", "01_gyan_deepak_intro.txt"),
+    os.path.join(BASE_DIR, "books", "gyan_deepak", "02_gyan_deepak_satguru_mahim.txt"),
+    os.path.join(BASE_DIR, "books", "bhakti_hetu", "01_bhakti_hetu_sar.txt"),
     os.path.join(BASE_DIR, "books", "nirguna_pads", "01_selected_nirguni_pads.txt"),
 ]
 
