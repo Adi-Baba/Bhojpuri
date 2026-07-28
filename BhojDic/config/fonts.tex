@@ -17,7 +17,14 @@
 \setmainfont{Noto Sans}[RawFeature={fallback=bhojfallback}]
 
 % Explicit font families for direct script styling
-\newfontfamily\kaithifont{Noto Sans Kaithi}[Renderer=HarfBuzz, Script=Kaithi]
+\newfontfamily\kaithifont{Noto Sans Kaithi}[
+  Renderer=HarfBuzz,
+  Script=Kaithi,
+  BoldFont={Noto Sans Kaithi},
+  ItalicFont={Noto Sans Kaithi},
+  BoldFeatures={FakeBold=1.5},
+  ItalicFeatures={FakeSlant=0.2}
+]
 \newfontfamily\devafont{Noto Sans Devanagari}[Renderer=HarfBuzz, Script=Devanagari, Language=Hindi]
 
 % Wrappers
