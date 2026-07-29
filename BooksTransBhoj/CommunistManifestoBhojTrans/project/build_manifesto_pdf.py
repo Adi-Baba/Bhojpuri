@@ -100,21 +100,7 @@ def latex_escape(text):
 
     return text
 
-def apply_drop_cap(text):
-    """Wrap the first Unicode character of a paragraph with \\lettrine for drop cap."""
-    # Match first Devanagari character (or any Unicode letter)
-    m = re.match(r'^(\s*)(\S)(.*)', text, re.DOTALL)
-    if not m:
-        return text
-    prefix, first_char, rest = m.group(1), m.group(2), m.group(3)
-    # Split rest into first word-continuation vs remainder for second arg
-    # lettrine{FirstChar}{}: first char big, second arg is small-caps opener
-    rest_stripped = rest.lstrip()
-    # Take up to first space as the "small" part (lettrine 2nd arg)
-    parts2 = rest_stripped.split(' ', 1)
-    small_part = parts2[0] if parts2 else ''
-    tail = (' ' + parts2[1]) if len(parts2) > 1 else ''
-    return f"{prefix}\\lettrine[lines=3, loversize=0.1]{{\\color{{bordercolor}}{first_char}}}{{{small_part}}}{tail}"
+
 
 latex_body = []
 in_table = False
@@ -132,8 +118,6 @@ for filename in section_files:
     lines = [line.strip() for line in content.split("\n")]
 
     is_first_line = True
-    # drop cap applies to the first true body paragraph after chapter heading
-    needs_drop_cap = filename in new_page_sections
     chapter_heading_emitted = False
 
     for line in lines:
@@ -187,10 +171,6 @@ for filename in section_files:
         elif line.startswith("A.") or line.startswith("B.") or line.startswith("C.") or line.startswith("भूमिका") or re.match(r'^(\([०-९]+\)|\([0-9]+\)|[0-9]+\.|[०-९]+\.)', line):
             latex_body.append(f"\n\\subsection*{{{escaped_line}}}\n")
         else:
-            # Apply drop cap to the very first body paragraph of each chapter
-            if needs_drop_cap and chapter_heading_emitted:
-                escaped_line = apply_drop_cap(escaped_line)
-                needs_drop_cap = False  # only first paragraph gets drop cap
             latex_body.append(f"{escaped_line}\n\n")
 
 latex_content = r"""\documentclass[12pt,a4paper,oneside]{book}
@@ -211,7 +191,6 @@ latex_content = r"""\documentclass[12pt,a4paper,oneside]{book}
 \usepackage{amssymb}
 \usepackage{tocloft}
 \usepackage{luacode}
-\usepackage{lettrine}
 \usepackage[colorlinks=true, linkcolor=bordercolor, citecolor=bordercolor, urlcolor=bordercolor, pdfborder={0 0 0}]{hyperref}
 
 % Devanagari page numerals via Lua
@@ -243,7 +222,7 @@ end
 }
 
 % Colors - Matmaila / Vintage Parchment Theme
-\definecolor{matmaila}{HTML}{C5B99D}      % Authentic matmaila earthy beige parchment
+\definecolor{matmaila}{HTML}{E2DAC8}      % Faint matmaila parchment (lightened)
 \definecolor{matmailadark}{HTML}{2B251F}  % Deep charcoal brown text
 \definecolor{bordercolor}{HTML}{3D3428}   % Vintage dark brown frame
 
@@ -313,9 +292,7 @@ end
   {\large\bfseries\color{bordercolor}}
   {}{0pt}{}
 
-% Drop cap letter style — match book ink color, slightly raised
-\setlength{\DefaultNindent}{0pt}
-\renewcommand{\LettrineFontHook}{\color{bordercolor}\bfseries}
+% Drop cap letter style removed
 
 % Quote Styling
 \usepackage{tcolorbox}
