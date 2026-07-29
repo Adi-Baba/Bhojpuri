@@ -88,9 +88,9 @@ for filename in section_files:
 
         if is_first_line:
             if filename in new_page_sections:
-                latex_body.append(f"\\cleardoublepage\n\\section*{{{escaped_line}}}\n\\addcontentsline{{toc}}{{section}}{{{escaped_line}}}\n")
+                latex_body.append(f"\\cleardoublepage\n\\section*{{{escaped_line}}}\n\\phantomsection\\addcontentsline{{toc}}{{section}}{{{escaped_line}}}\n")
             else:
-                latex_body.append(f"\n\\subsection*{{{escaped_line}}}\n\\addcontentsline{{toc}}{{subsection}}{{{escaped_line}}}\n")
+                latex_body.append(f"\n\\subsection*{{{escaped_line}}}\n\\phantomsection\\addcontentsline{{toc}}{{subsection}}{{{escaped_line}}}\n")
             is_first_line = False
         elif line.startswith("A.") or line.startswith("B.") or line.startswith("C.") or line.startswith("भूमिका") or re.match(r'^[1234567890]+\.', line):
             latex_body.append(f"\n\\subsection*{{{escaped_line}}}\n")
@@ -112,6 +112,7 @@ latex_content = r"""\documentclass[12pt,a4paper,oneside]{article}
 \usepackage{microtype}
 \usepackage{amssymb}
 \usepackage{tocloft}
+\usepackage[colorlinks=true, linkcolor=bordercolor, citecolor=bordercolor, urlcolor=bordercolor, pdfborder={0 0 0}]{hyperref}
 
 % Suppress lost character log warnings globally
 \tracinglostchars=0
