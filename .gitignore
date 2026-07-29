@@ -7,3 +7,5 @@
 *.fdb_latexmk
 *.synctex.gz
 BhojpuriSongLyrics/12_Misc_Folk/notes/12_nirgun_music_prompt_guide.md
+*.mp3
+audio/
