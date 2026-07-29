@@ -100,6 +100,22 @@ def latex_escape(text):
 
     return text
 
+def apply_drop_cap(text):
+    """Wrap the first Unicode character of a paragraph with \\lettrine for drop cap."""
+    # Match first Devanagari character (or any Unicode letter)
+    m = re.match(r'^(\s*)(\S)(.*)', text, re.DOTALL)
+    if not m:
+        return text
+    prefix, first_char, rest = m.group(1), m.group(2), m.group(3)
+    # Split rest into first word-continuation vs remainder for second arg
+    # lettrine{FirstChar}{}: first char big, second arg is small-caps opener
+    rest_stripped = rest.lstrip()
+    # Take up to first space as the "small" part (lettrine 2nd arg)
+    parts2 = rest_stripped.split(' ', 1)
+    small_part = parts2[0] if parts2 else ''
+    tail = (' ' + parts2[1]) if len(parts2) > 1 else ''
+    return f"{prefix}\\lettrine[lines=3, loversize=0.1]{{\\color{{bordercolor}}{first_char}}}{{{small_part}}}{tail}"
+
 latex_body = []
 in_table = False
 table_rows = []
@@ -114,12 +130,16 @@ for filename in section_files:
         content = f.read().strip()
 
     lines = [line.strip() for line in content.split("\n")]
-    
+
     is_first_line = True
+    # drop cap applies to the first true body paragraph after chapter heading
+    needs_drop_cap = filename in new_page_sections
+    chapter_heading_emitted = False
+
     for line in lines:
         if not line:
             continue
-        
+
         if line.startswith("┌") or line.startswith("│") or line.startswith("├") or line.startswith("└"):
             if line.startswith("┌"):
                 in_table = True
@@ -153,14 +173,24 @@ for filename in section_files:
 
         if is_first_line:
             if filename in new_page_sections:
-                latex_body.append(f"\\cleardoublepage\n\\chapter*{{{escaped_line}}}\n\\phantomsection\\addcontentsline{{toc}}{{chapter}}{{{escaped_line}}}\n")
+                # \markboth feeds the running header via \leftmark
+                latex_body.append(
+                    f"\\cleardoublepage\n"
+                    f"\\chapter*{{{escaped_line}}}\n"
+                    f"\\markboth{{{escaped_line}}}{{{escaped_line}}}\n"
+                    f"\\phantomsection\\addcontentsline{{toc}}{{chapter}}{{{escaped_line}}}\n"
+                )
+                chapter_heading_emitted = True
             else:
                 latex_body.append(f"\n\\section*{{{escaped_line}}}\n\\phantomsection\\addcontentsline{{toc}}{{section}}{{{escaped_line}}}\n")
             is_first_line = False
         elif line.startswith("A.") or line.startswith("B.") or line.startswith("C.") or line.startswith("भूमिका") or re.match(r'^(\([०-९]+\)|\([0-9]+\)|[0-9]+\.|[०-९]+\.)', line):
             latex_body.append(f"\n\\subsection*{{{escaped_line}}}\n")
         else:
-            is_first_line = False
+            # Apply drop cap to the very first body paragraph of each chapter
+            if needs_drop_cap and chapter_heading_emitted:
+                escaped_line = apply_drop_cap(escaped_line)
+                needs_drop_cap = False  # only first paragraph gets drop cap
             latex_body.append(f"{escaped_line}\n\n")
 
 latex_content = r"""\documentclass[12pt,a4paper,oneside]{book}
@@ -181,6 +211,7 @@ latex_content = r"""\documentclass[12pt,a4paper,oneside]{book}
 \usepackage{amssymb}
 \usepackage{tocloft}
 \usepackage{luacode}
+\usepackage{lettrine}
 \usepackage[colorlinks=true, linkcolor=bordercolor, citecolor=bordercolor, urlcolor=bordercolor, pdfborder={0 0 0}]{hyperref}
 
 % Devanagari page numerals via Lua
@@ -271,6 +302,9 @@ end
   {}{0pt}{}
   [\vspace{0.4em}{\color{bordercolor}\rule{0.35\textwidth}{0.8pt}}\vspace{0.8em}]
 
+% Chapter opener: generous top breathing room, space below heading before body
+\titlespacing*{\chapter}{0pt}{2.5cm}{1.4cm}
+
 \titleformat{\section}[block]
   {\Large\bfseries\color{bordercolor}}
   {}{0pt}{}
@@ -278,6 +312,10 @@ end
 \titleformat{\subsection}[block]
   {\large\bfseries\color{bordercolor}}
   {}{0pt}{}
+
+% Drop cap letter style — match book ink color, slightly raised
+\setlength{\DefaultNindent}{0pt}
+\renewcommand{\LettrineFontHook}{\color{bordercolor}\bfseries}
 
 % Quote Styling
 \usepackage{tcolorbox}
@@ -308,14 +346,18 @@ end
   \hb@xt@1.5em{\hss\textsuperscript{\directlua{devanagari_fn()}}~}#1}
 \makeatother
 
-% Header and Footer - Devanagari Page Numbers
+% Header and Footer - Devanagari Page Numbers + Running Chapter Header
 \pagestyle{fancy}
 \fancyhf{}
+% Left header: book title (fixed); Right header: current chapter (from \markboth)
+\fancyhead[L]{\small\color{bordercolor}\itshape कम्युनिस्ट पार्टी के घोषणापत्र}
+\fancyhead[R]{\small\color{bordercolor}\itshape\leftmark}
 \fancyfoot[C]{\color{bordercolor}\small\directlua{tex.print(devanagari(tex.count[0]))}}
-\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{bordercolor}\hrule height 0.4pt width\headwidth}
 \renewcommand{\footrulewidth}{0pt}
 
-% Redefine plain page style for TOC and chapter pages
+% Redefine plain page style for TOC and chapter opening pages (no header, just page num)
 \fancypagestyle{plain}{%
   \fancyhf{}%
   \fancyfoot[C]{\color{bordercolor}\small\directlua{tex.print(devanagari(tex.count[0]))}}%
