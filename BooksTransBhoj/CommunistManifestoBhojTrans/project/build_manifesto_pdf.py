@@ -1,12 +1,39 @@
 import os
 import re
 import subprocess
+import sys
 
-SOURCE_DIR = "/home/aditya/Documents/BhojPuriRevive/BooksTransBhoj/CommunistManifestoBhojTrans/project/source/translations"
-TEX_DIR = "/home/aditya/Documents/BhojPuriRevive/BooksTransBhoj/CommunistManifestoBhojTrans/project/tex"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+SOURCE_DIR = os.path.join(SCRIPT_DIR, "source/translations")
+TEX_DIR = os.path.join(SCRIPT_DIR, "tex")
+FONTS_DIR = os.path.join(SCRIPT_DIR, "fonts")
 TEX_FILE = os.path.join(TEX_DIR, "manifesto_bhojpuri.tex")
 
+def check_dependencies():
+    errors = []
+    for cmd in [["lualatex", "--version"], ["inkscape", "--version"]]:
+        try:
+            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except FileNotFoundError:
+            errors.append(f"{cmd[0]} not found — is it installed?")
+    required_fonts = [
+        "TiroDevanagariSanskrit-Regular.ttf",
+        "TiroDevanagariSanskrit-Italic.ttf",
+        "Kurale-Regular.ttf",
+    ]
+    for f in required_fonts:
+        if not os.path.exists(os.path.join(FONTS_DIR, f)):
+            errors.append(f"Font not found: fonts/{f}")
+    if errors:
+        for e in errors:
+            print(f"ERROR: {e}")
+        sys.exit(1)
+    print("All dependencies ok.")
+
+check_dependencies()
+
 section_files = [
+    "00_translators_preface.txt",
     "01_biography.txt",
     "02_manifesto_of_the_communist_party.txt",
     "03_i._bourgeois_and_proletarians.txt",
@@ -20,6 +47,7 @@ section_files = [
 ]
 
 new_page_sections = {
+    "00_translators_preface.txt",
     "01_biography.txt",
     "02_manifesto_of_the_communist_party.txt",
     "03_i._bourgeois_and_proletarians.txt",
@@ -40,10 +68,13 @@ def latex_escape(text):
     text = text.replace('~', '\\textasciitilde{}')
     text = text.replace('^', '\\textasciicircum{}')
 
+    # Standardize quotation marks: convert straight " " into curly “ ”
+    text = re.sub(r'"([^"]+)"', r'“\1”', text)
+
     def wrap_eng_parens(match):
         return f'{{\\engfont ({match.group(1)})}}'
     
-    text = re.sub(r'\(([A-Za-z0-9\s/&,.\'-]+)\)', wrap_eng_parens, text)
+    text = re.sub(r'\(([A-Za-z0-9\s/&,.\'\-;:?!]+)\)', wrap_eng_parens, text)
 
     parts = re.split(r'(\{\\engfont [^}]+\})', text)
     new_parts = []
@@ -64,9 +95,14 @@ def latex_escape(text):
     text = re.sub(r'^1\.\s*', r'{\\engfont 1}. ', text)
     text = re.sub(r'^2\.\s*', r'{\\engfont 2}. ', text)
     text = re.sub(r'^3\.\s*', r'{\\engfont 3}. ', text)
+    # Convert [footnote: ...] or [fn: ...] into \footnote{...}
+    text = re.sub(r'\[(?:footnote|fn):\s*(.*?)\]', r'\\footnote{\1}', text)
+
     return text
 
 latex_body = []
+in_table = False
+table_rows = []
 
 for filename in section_files:
     filepath = os.path.join(SOURCE_DIR, filename)
@@ -84,24 +120,56 @@ for filename in section_files:
         if not line:
             continue
         
+        if line.startswith("┌") or line.startswith("│") or line.startswith("├") or line.startswith("└"):
+            if line.startswith("┌"):
+                in_table = True
+                table_rows = []
+            elif line.startswith("├"):
+                pass
+            elif line.startswith("└"):
+                if table_rows:
+                    latex_table = [
+                        r"\begingroup",
+                        r"\small",
+                        r"\begin{longtable}{|l|l|p{7.5cm}|}",
+                        r"\hline"
+                    ]
+                    header = table_rows[0]
+                    latex_table.append(" & ".join([f"\\textbf{{{latex_escape(c)}}}" for c in header]) + r" \\ \hline \endhead")
+                    for row in table_rows[1:]:
+                        latex_table.append(" & ".join([latex_escape(c) for c in row]) + r" \\ \hline")
+                    latex_table.append(r"\end{longtable}")
+                    latex_table.append(r"\endgroup")
+                    latex_body.append("\n".join(latex_table) + "\n\n")
+                in_table = False
+                table_rows = []
+            elif line.startswith("│"):
+                parts = [p.strip() for p in line.split("│")[1:-1]]
+                if parts:
+                    table_rows.append(parts)
+            continue
+
         escaped_line = latex_escape(line)
 
         if is_first_line:
             if filename in new_page_sections:
-                latex_body.append(f"\\cleardoublepage\n\\section*{{{escaped_line}}}\n\\phantomsection\\addcontentsline{{toc}}{{section}}{{{escaped_line}}}\n")
+                latex_body.append(f"\\cleardoublepage\n\\chapter*{{{escaped_line}}}\n\\phantomsection\\addcontentsline{{toc}}{{chapter}}{{{escaped_line}}}\n")
             else:
-                latex_body.append(f"\n\\subsection*{{{escaped_line}}}\n\\phantomsection\\addcontentsline{{toc}}{{subsection}}{{{escaped_line}}}\n")
+                latex_body.append(f"\n\\section*{{{escaped_line}}}\n\\phantomsection\\addcontentsline{{toc}}{{section}}{{{escaped_line}}}\n")
             is_first_line = False
-        elif line.startswith("A.") or line.startswith("B.") or line.startswith("C.") or line.startswith("भूमिका") or re.match(r'^[1234567890]+\.', line):
+        elif line.startswith("A.") or line.startswith("B.") or line.startswith("C.") or line.startswith("भूमिका") or re.match(r'^(\([०-९]+\)|\([0-9]+\)|[0-9]+\.|[०-९]+\.)', line):
             latex_body.append(f"\n\\subsection*{{{escaped_line}}}\n")
         else:
             is_first_line = False
             latex_body.append(f"{escaped_line}\n\n")
 
-latex_content = r"""\documentclass[12pt,a4paper,oneside]{article}
+latex_content = r"""\documentclass[12pt,a4paper,oneside]{book}
 \usepackage{fontspec}
 \usepackage{geometry}
 \usepackage{xcolor}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
 \usepackage{tikz}
 \usepackage{graphicx}
 \usepackage{svg}
@@ -112,10 +180,27 @@ latex_content = r"""\documentclass[12pt,a4paper,oneside]{article}
 \usepackage{microtype}
 \usepackage{amssymb}
 \usepackage{tocloft}
+\usepackage{luacode}
 \usepackage[colorlinks=true, linkcolor=bordercolor, citecolor=bordercolor, urlcolor=bordercolor, pdfborder={0 0 0}]{hyperref}
 
-% Suppress lost character log warnings globally
-\tracinglostchars=0
+% Devanagari page numerals via Lua
+\begin{luacode*}
+function devanagari(num)
+  local n = tonumber(num)
+  if not n then return tostring(num) end
+  local digits = {"०","१","२","३","४","५","६","७","८","९"}
+  local s = ""
+  if n == 0 then return "०" end
+  while n > 0 do
+    s = digits[n % 10 + 1] .. s
+    n = math.floor(n / 10)
+  end
+  return s
+end
+\end{luacode*}
+
+% Warn on missing glyphs in log (does not stop build)
+\tracinglostchars=2
 
 % Page Geometry
 \geometry{
@@ -132,12 +217,24 @@ latex_content = r"""\documentclass[12pt,a4paper,oneside]{article}
 \definecolor{bordercolor}{HTML}{3D3428}   % Vintage dark brown frame
 
 % Fonts Configuration
-\setmainfont{Noto Serif Devanagari}[
+\setmainfont{TiroDevanagariSanskrit}[
+  Path=../fonts/,
+  Extension=.ttf,
   Renderer=HarfBuzz,
   Script=Devanagari,
   Language=Hindi,
   UprightFont=*-Regular,
-  BoldFont=*-Bold
+  ItalicFont=*-Italic,
+  BoldFont=*-Regular,
+  AutoFakeBold
+]
+
+\newfontfamily\kurale{Kurale-Regular}[
+  Path=../fonts/,
+  Extension=.ttf,
+  Renderer=HarfBuzz,
+  Script=Devanagari,
+  Language=Hindi
 ]
 
 \newfontfamily\engfont{Latin Modern Roman}
@@ -145,16 +242,21 @@ latex_content = r"""\documentclass[12pt,a4paper,oneside]{article}
 % Configure itemize bullet to use engfont textbullet
 \renewcommand{\labelitemi}{\engfont\textbullet}
 
-% Universal TOC Page Number Box Width (4.5em reserved for Roman numerals like XXVII)
-\makeatletter
-\renewcommand{\@pnumwidth}{4.5em}
-\renewcommand{\@tocrmarg}{5.0em}
-\makeatother
-
-\renewcommand{\cftsecpagefont}{\engfont}
-\renewcommand{\cftsubsecpagefont}{\engfont}
+\renewcommand{\cftchapfont}{\normalfont}
+\renewcommand{\cftchappagefont}{\normalfont}
 \renewcommand{\cftsecfont}{\normalfont}
-\renewcommand{\cftsubsecfont}{\normalfont}
+\renewcommand{\cftsecpagefont}{\normalfont}
+
+\renewcommand{\cftchapfillnum}[1]{%
+  \cftchapleader
+  {\cftchappagefont \directlua{tex.print(devanagari("#1"))}}%
+  \cftchapafterpnum\par
+}
+\renewcommand{\cftsecfillnum}[1]{%
+  \cftsecleader
+  {\cftsecpagefont \directlua{tex.print(devanagari("#1"))}}%
+  \cftsecafterpnum\par
+}
 
 % Line Spacing
 \setstretch{1.35}
@@ -164,32 +266,65 @@ latex_content = r"""\documentclass[12pt,a4paper,oneside]{article}
 \setlength{\parskip}{0.5em}
 
 % Section Titles Styling
-\titleformat{\section}[block]
-  {\centering\Large\bfseries\color{bordercolor}}
+\titleformat{\chapter}[block]
+  {\centering\LARGE\bfseries\color{bordercolor}}
   {}{0pt}{}
   [\vspace{0.4em}{\color{bordercolor}\rule{0.35\textwidth}{0.8pt}}\vspace{0.8em}]
+
+\titleformat{\section}[block]
+  {\Large\bfseries\color{bordercolor}}
+  {}{0pt}{}
 
 \titleformat{\subsection}[block]
   {\large\bfseries\color{bordercolor}}
   {}{0pt}{}
 
-% Header and Footer - Roman Page Numbers
+% Quote Styling
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable, skins}
+\newenvironment{customquote}
+  {\begin{tcolorbox}[blanker, breakable, left=12pt, top=4pt, bottom=4pt, borderline left={1.5pt}{0pt}{bordercolor}]
+   \small\itshape}
+  {\end{tcolorbox}}
+
+% Footnote Styling
+\begin{luacode*}
+function devanagari_fn()
+  local val = tex.count["c@footnote"]
+  tex.print(devanagari(val))
+end
+\end{luacode*}
+
+\renewcommand{\footnoterule}{%
+  \kern -3pt
+  \color{bordercolor}\hrule width 0.35\textwidth height 0.6pt
+  \kern 2.5pt
+}
+\setlength{\footnotesep}{0.8em}
+\makeatletter
+\renewcommand{\@makefnmark}{\textsuperscript{\directlua{devanagari_fn()}}}
+\renewcommand{\@makefntext}[1]{%
+  \parindent 1em\noindent
+  \hb@xt@1.5em{\hss\textsuperscript{\directlua{devanagari_fn()}}~}#1}
+\makeatother
+
+% Header and Footer - Devanagari Page Numbers
 \pagestyle{fancy}
 \fancyhf{}
-\fancyfoot[C]{\color{bordercolor}\small{\engfont \thepage}}
+\fancyfoot[C]{\color{bordercolor}\small\directlua{tex.print(devanagari(tex.count[0]))}}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
 
-% Redefine plain page style for TOC and chapter pages so footer uses engfont
+% Redefine plain page style for TOC and chapter pages
 \fancypagestyle{plain}{%
   \fancyhf{}%
-  \fancyfoot[C]{\color{bordercolor}\small{\engfont \thepage}}%
+  \fancyfoot[C]{\color{bordercolor}\small\directlua{tex.print(devanagari(tex.count[0]))}}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0pt}%
 }
 
 \begin{document}
-\pagenumbering{Roman}
+\pagenumbering{arabic}
 \pagecolor{matmaila}
 \color{matmailadark}
 
@@ -235,7 +370,7 @@ latex_content = r"""\documentclass[12pt,a4paper,oneside]{article}
   {\small \color{bordercolor} भोजपुरी अनुवाद} \\[1.8cm]
 
   % Center Emblem: Direct SVG Integration using \includesvg
-  \includesvg[width=6.0cm]{communist_emblem.svg}
+  \includesvg[width=6.0cm]{cropped-communist_emblem.svg}
 
   \vfill
 
@@ -263,20 +398,19 @@ latex_content = r"""\documentclass[12pt,a4paper,oneside]{article}
 \newpage
 \thispagestyle{empty}
 
-\vfill
 \begin{center}
-  {\Large \bfseries \color{bordercolor} कम्युनिस्ट पार्टी के घोषणापत्र} \\[0.3em]
-  {\small \color{bordercolor} {\engfont (The Communist Manifesto --- Bhojpuri Translation)}} \\[1.5em]
-  {\color{bordercolor}\rule{0.4\textwidth}{0.8pt}}
+  {\Large \bfseries \color{bordercolor} कम्युनिस्ट पार्टी के घोषणापत्र} \\[0.2em]
+  {\small \color{bordercolor} {\engfont (The Communist Manifesto --- Bhojpuri Translation)}} \\[0.4em]
+  {\color{bordercolor}\rule{0.35\textwidth}{0.8pt}}
 \end{center}
 
-\vspace*{1.2cm}
+\vspace*{0.3cm}
 
 \begin{center}
-\begin{minipage}{0.88\textwidth}
+\begin{minipage}{0.92\textwidth}
   \small
-  \setstretch{1.3}
-  \setlength{\parskip}{0.7em}
+  \setstretch{1.25}
+  \setlength{\parskip}{0.3em}
 
   {\bfseries पुस्तक का नाम:} कम्युनिस्ट पार्टी के घोषणापत्र \\
   {\bfseries मूल रचयिता:} कार्ल मार्क्स आ फ्रेडरिक एंगेल्स (1848) \\
@@ -285,30 +419,40 @@ latex_content = r"""\documentclass[12pt,a4paper,oneside]{article}
   {\bfseries सर्वाधिकार:} {\engfont \copyright} 2026 आदित्य कुमार (सर्वहक़ सुरक्षित) \\
   {\bfseries प्रथम संस्करण:} 2026
 
-  \vspace*{1.0em}
+  \vspace*{0.4em}
+
+  \begin{tcolorbox}[colframe=bordercolor, colback=matmaila!70!white, arc=3pt, boxrule=0.8pt, top=4pt, bottom=4pt, title={\bfseries अनुदित संस्करण विवरण {\engfont (Translated Edition Details)}}]
+  \small
+  \begin{itemize}\setlength{\itemsep}{0.1em}\setlength{\topsep}{0pt}\setlength{\parsep}{0pt}
+    \item {\bfseries मुख्य अनुवाद आधार (Primary Source):} {\engfont The Communist Manifesto (Illustrated Edition), Karl Marx \& Friedrich Engels (2014, ASIN: B00MJJ7YZE)}
+    \item {\bfseries मूल जर्मन संस्करण (Original German):} {\engfont Manifest der Kommunistischen Partei (1848)}
+    \item {\bfseries संदर्भ आर्काइव (Reference Archives):} {\engfont Marxists Internet Archive (MIA) \& Anna's Archive}
+  \end{itemize}
+  \end{tcolorbox}
+
+  \vspace*{0.4em}
   {\color{bordercolor}\rule{\textwidth}{0.4pt}}
-  \vspace*{1.0em}
+  \vspace*{0.4em}
 
   {\bfseries सर्वाधिकार आ लाइसेंस संबंधी शर्त {\engfont (Copyright Notice)}:}
 
-  \begin{itemize}\setlength{\itemsep}{0.4em}
+  \begin{itemize}\setlength{\itemsep}{0.2em}\setlength{\topsep}{0pt}\setlength{\parsep}{0pt}
     \item {\bfseries व्यक्तिगत उपयोग {\engfont (Personal Use)}:} ई भोजपुरी अनुवाद केवल व्यक्तिगत पठन, निजी अध्ययन आ गैर-व्यावसायिक पठन खातिर मुफ़्त उपलब्ध बा।
-    \item {\bfseries व्यावसायिक आ अकादमिक छपाई {\engfont (Commercial \& Academic Mass Printing)}:} कवनो प्रकार के व्यावसायिक प्रकाशन, बड़े पैमाने पर छपाई {\engfont (Mass Printing)}, व्यावसायिक संस्थान या अकादमिक संस्थाओं द्वारा बड़े पैमाने पर वितरण या व्यावसायिक उपयोग खातिर अनुवादक (आदित्य कुमार) से लिखित पूर्वानुमति आ रॉयल्टी {\engfont (Royalty Agreement)} लेहल अनिवार्य बा।
+    \item {\bfseries व्यावसायिक आ अकादमिक छपाई {\engfont (Commercial Mass Printing)}:} कवनो प्रकार के व्यावसायिक प्रकाशन, बड़े पैमाने पर छपाई {\engfont (Mass Printing)}, या व्यावसायिक अकादमिक उपयोग खातिर अनुवादक (आदित्य कुमार) से लिखित पूर्वानुमति आ रॉयल्टी {\engfont (Royalty Agreement)} लेहल अनिवार्य बा।
   \end{itemize}
 
-  \vspace*{0.8em}
+  \vspace*{0.4em}
   {\color{bordercolor}\rule{\textwidth}{0.4pt}}
-  \vspace*{0.8em}
+  \vspace*{0.4em}
 
   \begin{center}
     {\engfont \copyright{} 2026 Aditya Kumar. All Rights Reserved.} \\
-    {\small {\engfont Free for personal non-commercial study only. Commercial printing, mass distribution, or commercial academic use requires prior written permission and royalty licensing.}} \\
-    \vspace*{0.5em}
+    {\footnotesize {\engfont Free for personal non-commercial study only. Commercial printing requires prior written permission.}} \\
+    \vspace*{0.3em}
     {\small स्वतंत्र अनुवाद परियोजना | भोजपुरी रिवाइव प्रोजेक्ट {\engfont (Bhojpuri Revive Project)}}
   \end{center}
 \end{minipage}
 \end{center}
-\vfill
 
 % ================= PAGE III: TABLE OF CONTENTS (विषय-सूची - SINGLE PAGE) =================
 \newpage
@@ -347,13 +491,19 @@ with open(TEX_FILE, "w", encoding="utf-8") as f:
 print(f"Generated {TEX_FILE} successfully.")
 
 # Run LuaLaTeX with -shell-escape to enable direct LaTeX \includesvg integration
+# Three passes are needed to resolve cross-references and TOC.
 try:
     cmd = ["lualatex", "-shell-escape", "-interaction=nonstopmode", "manifesto_bhojpuri.tex"]
     for i in range(3):
         res = subprocess.run(cmd, cwd=TEX_DIR, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    if res.returncode == 0:
-        print("PDF compilation SUCCESSFUL with 0 errors!")
+        if res.returncode != 0:
+            print(f"LuaLaTeX run {i+1}/3 returned code {res.returncode} (may be non-fatal), continuing...")
+    pdf_path = os.path.join(TEX_DIR, "manifesto_bhojpuri.pdf")
+    if os.path.exists(pdf_path) and os.path.getsize(pdf_path) > 50000:
+        print(f"PDF compilation SUCCESSFUL: {pdf_path}")
     else:
-        print("LuaLaTeX finished.")
+        print("ERROR: PDF was not generated or is too small.")
+        sys.exit(1)
 except Exception as e:
     print("Error running LuaLaTeX:", e)
+    sys.exit(1)
