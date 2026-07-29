@@ -9,32 +9,34 @@
 \usepackage{setspace}
 \usepackage{titlesec}
 \usepackage{fancyhdr}
-\usepackage{microtype}
 \usepackage{amssymb}
 \usepackage{tocloft}
 
 \tracinglostchars=0
+\emergencystretch=3em
 
 \geometry{
   a4paper,
-  left=25mm,
-  right=25mm,
-  top=28mm,
-  bottom=28mm
+  left=25mm, right=25mm,
+  top=28mm, bottom=28mm
 }
 
-\definecolor{matmaila}{HTML}{C5B99D}      % Vintage parchment
-\definecolor{matmailadark}{HTML}{2B251F}  % Deep charcoal text
-\definecolor{bordercolor}{HTML}{3D3428}   % Frame border
+\definecolor{matmaila}{HTML}{C5B99D}
+\definecolor{matmailadark}{HTML}{2B251F}
+\definecolor{bordercolor}{HTML}{3D3428}
+\definecolor{versecolor}{HTML}{3D2B10}
+\definecolor{labelcolor}{HTML}{6B4C2A}
+\definecolor{rulecolor}{HTML}{8B6840}
 
 \setmainfont{Noto Serif Devanagari}[
+  Renderer=HarfBuzz,
   Script=Devanagari,
-  Language=Hindi,
   UprightFont=*-Regular,
   BoldFont=*-Bold
 ]
-
-\newfontfamily\engfont{Latin Modern Roman}
+\newfontfamily\engfont{Latin Modern Roman}[
+  Ligatures=TeX
+]
 
 \renewcommand{\labelitemi}{\engfont\textbullet}
 
@@ -49,7 +51,6 @@
 \renewcommand{\cftsubsecfont}{\normalfont}
 
 \setstretch{1.35}
-
 \setlength{\parindent}{1.5em}
 \setlength{\parskip}{0.5em}
 
@@ -64,47 +65,41 @@
 
 \pagestyle{fancy}
 \fancyhf{}
-\fancyfoot[C]{\color{bordercolor}\small{\engfont \thepage}}
+\fancyfoot[C]{\color{bordercolor}\small{\engfontfamily \thepage}}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
-
 \fancypagestyle{plain}{%
   \fancyhf{}%
-  \fancyfoot[C]{\color{bordercolor}\small{\engfont \thepage}}%
+  \fancyfoot[C]{\color{bordercolor}\small{\engfontfamily \thepage}}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0pt}%
 }
 
 \begin{document}
-\pagenumbering{Roman}
+\pagenumbering{roman}
 \pagecolor{matmaila}
 \color{matmailadark}
 
-% ================= PAGE I: FRONT COVER =================
+% ===================== FRONT COVER =====================
 \begin{titlepage}
 \thispagestyle{empty}
 
 \begin{tikzpicture}[remember picture, overlay]
-  \draw[line width=1.2pt, color=bordercolor] 
-    ([yshift=-10mm, xshift=10mm]current page.north west) rectangle 
+  \draw[line width=1.2pt, color=bordercolor]
+    ([yshift=-10mm, xshift=10mm]current page.north west) rectangle
     ([yshift=10mm, xshift=-10mm]current page.south east);
-
-  \draw[line width=0.5pt, color=bordercolor] 
-    ([yshift=-12mm, xshift=12mm]current page.north west) rectangle 
+  \draw[line width=0.5pt, color=bordercolor]
+    ([yshift=-12mm, xshift=12mm]current page.north west) rectangle
     ([yshift=12mm, xshift=-12mm]current page.south east);
-
-  \draw[line width=1.2pt, color=bordercolor] 
-    ([yshift=-20mm, xshift=18mm]current page.north west) -- 
+  \draw[line width=1.2pt, color=bordercolor]
+    ([yshift=-20mm, xshift=18mm]current page.north west) --
     ([yshift=-20mm, xshift=-18mm]current page.north east);
-  
   \foreach \x in {-7.5,-6,-4.5,-3,-1.5,0,1.5,3,4.5,6,7.5} {
     \node[color=bordercolor, font=\engfont] at ([yshift=-17mm, xshift=\x cm]current page.north) {\small $\therefore$};
   }
-
-  \draw[line width=1.2pt, color=bordercolor] 
-    ([yshift=20mm, xshift=18mm]current page.south west) -- 
+  \draw[line width=1.2pt, color=bordercolor]
+    ([yshift=20mm, xshift=18mm]current page.south west) --
     ([yshift=20mm, xshift=-18mm]current page.south east);
-  
   \foreach \x in {-7.5,-6,-4.5,-3,-1.5,0,1.5,3,4.5,6,7.5} {
     \node[color=bordercolor, font=\engfont] at ([yshift=23mm, xshift=\x cm]current page.south) {\small $\because$};
   }
@@ -127,20 +122,19 @@
     \draw[line width=1.8pt, color=bordercolor] (0,0) -- (0, 2.4);
     \node[anchor=west, text width=12.5cm, color=matmailadark, font=\normalfont] at (0.35, 1.2) {
       \small
-      {\bfseries मूल रचयिता:} संत दरिया साहब {\engfont (1674 -- 1780 AD)} \\
+      {\bfseries मूल रचयिता:} संत दरिया साहब {\engfont (1674\,--\,1780 AD)} \\
       {\bfseries संकलन आ संपादन:} आदित्य कुमार \\
       {\bfseries भाषा शैली:} 18वीं सदी के प्रामाणिक भोजपुरी \\
       {\bfseries परियोजना:} भोजपुरी रिवाइव प्रोजेक्ट {\engfont (Bhojpuri Revive Project)} \\
-      {\bfseries संस्करण:} प्रथम भोजपुरी संस्करण (2026)
+      {\bfseries संस्करण:} प्रथम प्रामाणिक भोजपुरी संस्करण {\engfont (2026)}
     };
   \end{tikzpicture}
   \end{flushleft}
 \end{center}
-
 \vspace*{0.8cm}
 \end{titlepage}
 
-% ================= PAGE II: COPYRIGHT =================
+% ===================== COPYRIGHT =====================
 \newpage
 \thispagestyle{empty}
 
@@ -155,26 +149,24 @@
 
 \begin{center}
 \begin{minipage}{0.88\textwidth}
-  \small
-  \setstretch{1.3}
-  \setlength{\parskip}{0.7em}
+  \small\setstretch{1.3}\setlength{\parskip}{0.7em}
 
   {\bfseries पुस्तक का नाम:} संत दरिया साहब रचनावली \\
-  {\bfseries मूल रचयिता:} संत दरिया साहब (1674--1780 ई.) \\
+  {\bfseries मूल रचयिता:} संत दरिया साहब {\engfont (1674--1780 ई.)} \\
   {\bfseries संकलनकर्ता आ संपादक:} आदित्य कुमार {\engfont (Aditya Kumar)} \\
   {\bfseries भाषा शैली:} 18वीं सदी के भोजपुरी \\
-  {\bfseries सर्वाधिकार:} {\engfont \copyright} 2026 आदित्य कुमार (सर्वहक़ सुरक्षित) \\
-  {\bfseries प्रथम डिजिटल संस्करण:} 2026
+  {\bfseries सर्वाधिकार:} {\engfont \copyright} 2026 आदित्य कुमार \\
+  {\bfseries प्रथम डिजिटल संस्करण:} {\engfont 2026}
 
   \vspace*{1.0em}
   {\color{bordercolor}\rule{\textwidth}{0.4pt}}
   \vspace*{1.0em}
 
-  {\bfseries सर्वाधिकार आ डिजिटल संरक्षण शर्त {\engfont (Archive Rights)}:}
+  {\bfseries सर्वाधिकार आ डिजिटल संरक्षण शर्त:}
 
   \begin{itemize}\setlength{\itemsep}{0.4em}
-    \item {\bfseries व्यक्तिगत उपयोग {\engfont (Personal Use)}:} ई ग्रंथ केवल निःशुल्क डिजिटल पठन, निजी अध्ययन आ भोजपुरी भाषा संरक्षण खातिर मुफ़्त उपलब्ध बा।
-    \item {\bfseries व्यावसायिक उपयोग:} कवनो प्रकार के व्यावसायिक प्रकाशन, बड़े पैमाने पर छपाई {\engfont (Mass Printing)} खातिर संपादक से लिखित पूर्वानुमति आवश्यक बा।
+    \item {\bfseries व्यक्तिगत उपयोग:} ई ग्रंथ केवल निःशुल्क डिजिटल पठन, निजी अध्ययन आ भोजपुरी भाषा संरक्षण खातिर मुफ़्त उपलब्ध बा।
+    \item {\bfseries व्यावसायिक उपयोग:} कवनो प्रकार के व्यावसायिक प्रकाशन या बड़े पैमाने पर छपाई खातिर संपादक से लिखित पूर्वानुमति आवश्यक बा।
   \end{itemize}
 
   \vspace*{0.8em}
@@ -185,13 +177,13 @@
     {\engfont \copyright{} 2026 Aditya Kumar. All Rights Reserved.} \\
     {\small {\engfont Free for personal non-commercial study \& Bhojpuri cultural revival.}} \\
     \vspace*{0.5em}
-    {\small डिजिटल संरक्षण परियोजना | भोजपुरी रिवाइव प्रोजेक्ट {\engfont (Bhojpuri Revive Project)}}
+    {\small डिजिटल संरक्षण परियोजना | भोजपुरी रिवाइव प्रोजेक्ट}
   \end{center}
 \end{minipage}
 \end{center}
 \vfill
 
-% ================= PAGE III: TABLE OF CONTENTS =================
+% ===================== TABLE OF CONTENTS =====================
 \newpage
 \thispagestyle{empty}
 
@@ -201,7 +193,6 @@
 \end{center}
 
 \vspace*{0.6cm}
-
 \renewcommand{\contentsname}{}
 \setcounter{tocdepth}{2}
 {\makeatletter
@@ -211,364 +202,18 @@
 
 \vfill
 \begin{center}
-  {\small \color{bordercolor} भोजपुरी रिवाइव प्रोजेक्ट | प्रथम संस्करण (2026)}
+  {\small \color{bordercolor} भोजपुरी रिवाइव प्रोजेक्ट | प्रथम संस्करण {\engfont 2026}}
 \end{center}
 
 \newpage
-
-% ================= MAIN CONTENT =================
-\cleardoublepage
-\cleardoublepage
-\section*{संत दरिया साहब (भोजपुर): जीवन वृत्त आ साहित्यिक योगदान (1674 – 1780 ई.)}
-\addcontentsline{toc}{section}{संत दरिया साहब (भोजपुर): जीवन वृत्त आ साहित्यिक योगदान (1674 – 1780 ई.)}
-
-\subsection*{१. जन्म आ प्रारंभिक जीवन}
-\addcontentsline{toc}{subsection}{१. जन्म आ प्रारंभिक जीवन}
-संत दरिया साहब के जन्म 1674 ईस्वी (विक्रम संवत 1731) में बिहार के रोहतास/भोजपुर क्षेत्र के प्रसिद्ध गाँव 'धरकंधा' {\engfont (Dharkandha)} में भइल रहे। इनकर पिता के नाम पीरन शाह आ माता के नाम टेकनी देवी रहे। दरिया साहब के परिवार दरजी (दर्जी) व्यवसाय से जुड़ल रहे। ऊ बेहद सरल, स्वावलंबी आ निष्ठावान स्वभाव के रहलें।
-
-
-\subsection*{२. आध्यात्मिक चेतना आ निर्गुण भक्ति}
-\addcontentsline{toc}{subsection}{२. आध्यात्मिक चेतना आ निर्गुण भक्ति}
-दरिया साहब कबीरपंथी आ संत-मत के महान परंपरा के प्रतिनिधि संत-कवि बाड़ें। ऊ बाह्य आडंबर, मूर्ति-पूजा, जाति-पाँति के भेद-भाव आ धार्मिक कट्टरता के कड़ा विरोध कइलीं। उनकर विचार रहे कि ईश्वर कवनो मंदिर या मस्जिद में ना, बलुक हर मनुष्य के दिल में (हर घट में) विराजमान बाड़ें।
-
-
-\subsection*{३. रचना संसार {\engfont (Major Literary Corpus)}}
-\addcontentsline{toc}{subsection}{३. रचना संसार {\engfont (Major Literary Corpus)}}
-संत दरिया साहब लगभग 15,000 से अधिक पदों आ दोहों के रचना कइलीं। इनकर प्रमुख ग्रंथ निम्नलिखित बाड़ें:
-
-- दरिया सागर {\engfont (Dariya Sagar)}: इनकर सबसे विशाल आ महत्वपूर्ण दार्शनिक ग्रंथ।
-
-- ज्ञान दीपक {\engfont (Gyan Deepak)}: ज्ञान आ भक्ति के गूढ़ रहस्य बतावे वाला ग्रंथ।
-
-- भक्ति हेतु {\engfont (Bhakti Hetu)}: भक्ति के सहज मार्ग के निरूपण।
-
-- प्रेम गान आ पद संग्रह (Prem Gaan \& Nirguni Pads): भोजपुरी लोक-राग में रचल भक्ति पद।
-
-४. 18वीं सदी के भोजपुरी भाषा के महत्व
-
-दरिया साहब के काव्य भाषा 18वीं शताब्दी के विशुद्ध आ सहज लोक-भोजपुरी ह। एह में पूरबी अवधी आ तत्कालीन लोक-बोलियों के सम्मिश्रण बा, जे एह बात के प्रमाण ह कि 18वीं सदी में भोजपुरी में कितना समृद्ध आध्यात्मिक आ दार्शनिक साहित्य रचल जा रहल रहे।
-
-\cleardoublepage
-\section*{दरिया सागर {\engfont (Dariya Sagar)} - मंगलाचरण आ आत्म-बोध}
-\addcontentsline{toc}{section}{दरिया सागर {\engfont (Dariya Sagar)} - मंगलाचरण आ आत्म-बोध}
-
-\subsection*{१. मंगलाचरण {\engfont (Invocation)}}
-\addcontentsline{toc}{subsection}{१. मंगलाचरण {\engfont (Invocation)}}
-मूल भोजपुरी रचना:
-
-आदि नाम सत्य पुरुष हमारा, ताकर महिमा अगम अपारा।
-
-दरिया गावै सहज सुहाई, सतगुरु कृपा मिलल अधिकाई॥
-
-भोजपुरी भावार्थ:
-
-हमर मूल आधार सत्य पुरुष (ईश्वर) के नाम ह, जिनकर महिमा अपार आ अगम बा। सतगुरु के कृपा से दरिया साहब सहज भाव से ई महिमा गावत बाड़ें।
-
-English Translation:
-
-The Eternal Name of the True One is our foundation, boundless and beyond grasp.
-
-By the grace of the True Master, Dariya sings this praise with natural devotion.
-
-
-\vspace{0.5em}{\color{bordercolor}\rule{0.4\textwidth}{0.4pt}}\vspace{0.5em}
-
-\subsection*{२. संसार अनित्यता आ विवेक (Impermanence \& Wisdom)}
-\addcontentsline{toc}{subsection}{२. संसार अनित्यता आ विवेक (Impermanence \& Wisdom)}
-मूल भोजपुरी रचना:
-
-ई जग देखत सपना जैसा, छिन में बिनसे पानी जैसा।
-
-सत्य नाम संबल कर लीजै, जनम जनम के संसय छीजै॥
-
-भोजपुरी भावार्थ:
-
-ई संसार सपना लेखा अनित्य बा, पानी के बुलबुला लेखा छिन भर में बिला जाला। एह से सत्य नाम के सहारा ला, ताकि जनम-जनम के डर आ भ्रम खतम हो जाव।
-
-English Translation:
-
-This physical world is transitory like a dream, disappearing in a moment like water drops.
-
-Hold fast to the True Name, so that the doubts of lifetimes may be dissolved.
-
-\cleardoublepage
-\section*{दरिया सागर {\engfont (Dariya Sagar)} - सृष्टि खंड आ अमर लोक}
-\addcontentsline{toc}{section}{दरिया सागर {\engfont (Dariya Sagar)} - सृष्टि खंड आ अमर लोक}
-
-\subsection*{१. अमर लोक आ सत्य पुरुष {\engfont (The Eternal Realm)}}
-\addcontentsline{toc}{subsection}{१. अमर लोक आ सत्य पुरुष {\engfont (The Eternal Realm)}}
-मूल भोजपुरी रचना:
-
-अमर लोक में पुरुष बिराजे, ताकर तेज अमित छबि छाजै।
-
-नहिं वहाँ धूप न छाया भाई, सहज रूप सब रहल समाई॥
-
-भोजपुरी भावार्थ:
-
-अमर लोक में सर्वव्यापी परमात्मा (सत्य पुरुष) विराजमान बाड़ें, जिनकर प्रकाश आ तेज अमित बा। ओहिजा कवनो धूप या छाँव के द्वंद्व नइखे, सब कुछ सहज आनंद में समाइल बा।
-
-English Translation:
-
-In the Eternal Realm abides the Supreme Spirit, glowing with boundless splendor.
-
-There is neither heat nor shadow there; all creation rests in spontaneous harmony.
-
-
-\vspace{0.5em}{\color{bordercolor}\rule{0.4\textwidth}{0.4pt}}\vspace{0.5em}
-
-\subsection*{२. संसार उत्पत्ति आ जीव के दशा (Creation \& Human Condition)}
-\addcontentsline{toc}{subsection}{२. संसार उत्पत्ति आ जीव के दशा (Creation \& Human Condition)}
-मूल भोजपुरी रचना:
-
-आदि कला से भइल पसारा, पाँच तत्व आ गुन विस्तारा।
-
-जीव भूलि आपन निज धामा, भरमि परल माया के धामा॥
-
-भोजपुरी भावार्थ:
-
-परमात्मा के आदि शक्ति से एह संसार आ पाँच तत्वन के फैलाव भइल। बाकिर जीव आपन असली घर (अमर लोक) के भुला के माया के अन्हरिया में भटक गइल।
-
-English Translation:
-
-From the primordial cosmic power arose the expanse of the five elements.
-
-Forgetful of its true origin, the soul wanders amidst the maze of illusion.
-
-\cleardoublepage
-\section*{दरिया सागर {\engfont (Dariya Sagar)} - सतनाम खंड आ सुमिरन}
-\addcontentsline{toc}{section}{दरिया सागर {\engfont (Dariya Sagar)} - सतनाम खंड आ सुमिरन}
-
-\subsection*{१. सतनाम महिमा {\engfont (The Glory of Satnam)}}
-\addcontentsline{toc}{subsection}{१. सतनाम महिमा {\engfont (The Glory of Satnam)}}
-मूल भोजपुरी रचना:
-
-सतनाम सम और न दूजा, छाड़ि कपट कर सहजहिं पूजा।
-
-सब साधन में नाम प्रधाणा, जाके सुमिरे कटै बंधाना॥
-
-भोजपुरी भावार्थ:
-
-सत्य नाम के समान दूसर कवनो साधना नइखे। मन के सब कपट छोड़ के सहज भाव से नाम सुमिरन करा। नाम ही सब साधन में श्रेष्ठ ह, जेकरा सुमिरन से सब बंधन कट जाला।
-
-English Translation:
-
-There is no refuge higher than the True Name; discard pretense and worship with simplicity.
-
-Among all spiritual practices, Remembrance of Name is supreme, severing all bonds of ignorance.
-
-
-\vspace{0.5em}{\color{bordercolor}\rule{0.4\textwidth}{0.4pt}}\vspace{0.5em}
-
-\subsection*{२. सहज सुमिरन आ मन निरोध (Meditation \& Mind Control)}
-\addcontentsline{toc}{subsection}{२. सहज सुमिरन आ मन निरोध (Meditation \& Mind Control)}
-मूल भोजपुरी रचना:
-
-सुमिरन ऐसा कीजिए, दूजा मन नहिं आय।
-
-रोम रोम में नाम रमै, सुरति निरति ठहराय॥
-
-भोजपुरी भावार्थ:
-
-नाम सुमिरन अइसन होखे के चाहीं कि मन में कवनो दूसर विचार मत आवे। रोम-रोम में नाम समा जाव आ ध्यान पूरी तरह स्थिर हो जाव।
-
-English Translation:
-
-Remember the Divine in such depth that no secondary thought enters the mind.
-
-May the Holy Name permeate every pore, stilling consciousness into unwavering focus.
-
-\cleardoublepage
-\section*{ज्ञान दीपक {\engfont (Gyan Deepak)} - ज्ञान के दीपक आ प्रकाश}
-\addcontentsline{toc}{section}{ज्ञान दीपक {\engfont (Gyan Deepak)} - ज्ञान के दीपक आ प्रकाश}
-
-\subsection*{१. ज्ञान के दीपक {\engfont (Lamp of Knowledge)}}
-\addcontentsline{toc}{subsection}{१. ज्ञान के दीपक {\engfont (Lamp of Knowledge)}}
-मूल भोजपुरी रचना:
-
-ज्ञान के दीपक घर में बारो, भरम अँधियारा सब निरवारो।
-
-आप आपु के चीन्हन लागी, सोवत आतम सहजे जागी॥
-
-भोजपुरी भावार्थ:
-
-मन आ घर के भीतर ज्ञान के दीपक जलाइब त भ्रम के सारा अन्हरिया दूर हो जाई। तब आपन रूप के पहचान होई आ सुतल आत्मा सहजही जाग उठी।
-
-English Translation:
-
-Light the lamp of Wisdom within your heart to dispel the shadows of delusion.
-
-Recognize your true inner self, and the sleeping soul awakens effortlessly into truth.
-
-
-\vspace{0.5em}{\color{bordercolor}\rule{0.4\textwidth}{0.4pt}}\vspace{0.5em}
-
-\subsection*{२. शब्द आ सुरति अभ्यास (Inner Harmony \& Sound)}
-\addcontentsline{toc}{subsection}{२. शब्द आ सुरति अभ्यास (Inner Harmony \& Sound)}
-मूल भोजपुरी रचना:
-
-अनहद शब्द निरंतर बाजै, सुरति निरति मिलि आतम छाजै।
-
-दरिया खोजत घट ही पावा, निर्मल रूप अमर पद पावा॥
-
-भोजपुरी भावार्थ:
-
-भीतर अनहद नाद के शब्द निरंतर गूँजत बा। जब ध्यान (सुरति) ओकरा में लीन हो जाला, त आत्मा आनंदित हो जाले। दरिया साहब कहत बाड़ें कि खोजला पर ई सत्य आपन भीतर ही मिल गइल।
-
-English Translation:
-
-The boundless inner melody resonates continuously within.
-
-When awareness merges with this divine resonance, the soul shines in eternal peace.
-
-\cleardoublepage
-\section*{ज्ञान दीपक {\engfont (Gyan Deepak)} - सतगुरु महिमा आ विवेक}
-\addcontentsline{toc}{section}{ज्ञान दीपक {\engfont (Gyan Deepak)} - सतगुरु महिमा आ विवेक}
-
-\subsection*{१. सतगुरु के महत्व {\engfont (The Importance of the True Master)}}
-\addcontentsline{toc}{subsection}{१. सतगुरु के महत्व {\engfont (The Importance of the True Master)}}
-मूल भोजपुरी रचना:
-
-सतगुरु मिले त मारग पावै, अज्ञान अन्हरिया तुरंत नसावै।
-
-बिनु गुरु ज्ञान न उपजै भाई, कितना कोटि उपाय कराई॥
-
-भोजपुरी भावार्थ:
-
-जब सतगुरु मिलेलान त सच्चा मार्ग लउके लागेला आ अज्ञानता के अन्हरिया तुरंत खतम हो जाला। बिना गुरु के कवनो ज्ञान पैदा नइखे हो सकत, चाहे कवनो करोड़ों उपाय काहे न कर लिहल जाव।
-
-English Translation:
-
-When the True Master is found, the path becomes clear, instantly dispelling darkness.
-
-Without wisdom guided by Truth, spiritual awakening cannot arise, no matter how many efforts one makes.
-
-
-\vspace{0.5em}{\color{bordercolor}\rule{0.4\textwidth}{0.4pt}}\vspace{0.5em}
-
-\subsection*{२. विवेक आ विचार (Discernment \& Wisdom)}
-\addcontentsline{toc}{subsection}{२. विवेक आ विचार (Discernment \& Wisdom)}
-मूल भोजपुरी रचना:
-
-हंस रूप सोई पहचाना, सार शब्द जिन साँचा जाना।
-
-काँच कंचन में भेद जनावे, सोई सुजान परम पद पावे॥
-
-भोजपुरी भावार्थ:
-
-हंस के समान विवेकशील उही व्यक्ति ह जे सार शब्द आ सत्य के पहचान लेला। जे काँच आ सोना में भेद समझ लेला, उहे बुद्धिमान मोक्ष आ परम पद पावेला।
-
-English Translation:
-
-Like a discerning swan, true is the seeker who recognizes the essence of Truth.
-
-One who distinguishes glass from gold attains the highest spiritual fulfillment.
-
-\cleardoublepage
-\section*{भक्ति हेतु {\engfont (Bhakti Hetu)} - सहज भक्ति आ निष्काम भाव}
-\addcontentsline{toc}{section}{भक्ति हेतु {\engfont (Bhakti Hetu)} - सहज भक्ति आ निष्काम भाव}
-
-\subsection*{१. भक्ति के लक्षण {\engfont (Characteristics of True Devotion)}}
-\addcontentsline{toc}{subsection}{१. भक्ति के लक्षण {\engfont (Characteristics of True Devotion)}}
-मूल भोजपुरी रचना:
-
-भक्ति करे सो सुरमा, तन मन लज्जा खोय।
-
-छैल चिकनिया बिसनी, वा से भक्ति न होय॥
-
-भोजपुरी भावार्थ:
-
-सच्चा भक्त उहे वीर ह जे तन, मन आ संसार के लोक-लाज छोड़ के प्रभु के शरण में आ जाला। छैल-चिकनिया आ भोगी-विलास में डूबल लोग से भक्ति ना हो सके।
-
-English Translation:
-
-True devotion requires real courage—surrendering bodily pride and worldly shame.
-
-The superficial and indulgence-seeking cannot tread the earnest path of devotion.
-
-
-\vspace{0.5em}{\color{bordercolor}\rule{0.4\textwidth}{0.4pt}}\vspace{0.5em}
-
-\subsection*{२. निष्काम सेवा {\engfont (Selfless Service)}}
-\addcontentsline{toc}{subsection}{२. निष्काम सेवा {\engfont (Selfless Service)}}
-मूल भोजपुरी रचना:
-
-फल के आस करे जो प्राणी, सो फल पावै अंत बिलाणी।
-
-निष्काम भाव से जो रत होई, अमर पदवी पावै सोई॥
-
-भोजपुरी भावार्थ:
-
-जे मनुष्य फल के आशा में कर्म करेला, ओकर फल अंत में खतम हो जाला। बाकिर जे निष्काम भाव से प्रभु भक्ति में लागल रहेला, उहे अमर पद पावेला।
-
-English Translation:
-
-One who acts merely for personal rewards reaps results that eventually fade away.
-
-Whoever dedicates life to selfless love and devotion attains immortal peace.
-
-\cleardoublepage
-\section*{संत दरिया साहब के प्रसिद्ध निरगुनी पद आ साखी {\engfont (Selected Verses)}}
-\addcontentsline{toc}{section}{संत दरिया साहब के प्रसिद्ध निरगुनी पद आ साखी {\engfont (Selected Verses)}}
-
-\subsection*{१. पद १: घट-घट व्यापक राम {\engfont (The Omnipresent Divine)}}
-\addcontentsline{toc}{subsection}{१. पद १: घट-घट व्यापक राम {\engfont (The Omnipresent Divine)}}
-मूल भोजपुरी पद:
-
-सब घट साईं बसत हैं, खाली घट नहिं कोय।
-
-बलिहारी वा घट की, जा घट परगट होय॥
-
-भोजपुरी भावार्थ:
-
-सब प्राणी के भीतर ईश्वर के वास बा, कवनो शरीर खाली नइखे। बलिहारी त ओह मन आ शरीर के ह, जहाँ ई सत्य आ ईश्वर प्रत्यक्ष रूप से प्रकट हो जालान।
-
-English Translation:
-
-The Divine abides in every heart; no vessel is empty.
-
-Blessed is that conscious heart wherein Truth is fully revealed.
-
-
-\vspace{0.5em}{\color{bordercolor}\rule{0.4\textwidth}{0.4pt}}\vspace{0.5em}
-
-\subsection*{२. पद २: निरगुन भक्ति आ आतम ज्ञान {\engfont (Self-Realization)}}
-\addcontentsline{toc}{subsection}{२. पद २: निरगुन भक्ति आ आतम ज्ञान {\engfont (Self-Realization)}}
-मूल भोजपुरी पद:
-
-नाम सनेही निरगुन देवा, सहज ध्यान में कीजै सेवा।
-
-काहे भटकत फिरत भुलाना, आतम राम नाहिं पहिचाना॥
-
-भोजपुरी भावार्थ:
-
-ओह निराकार ईश्वर के प्रेम से याद करा, सहज ध्यान ही ओकर असली सेवा ह। ऐ मन! तू बाहर काहे भटकत बाड़ा? तू आपन भीतर बसल आतम-राम के नइख पहचानत!
-
-English Translation:
-
-Remember the Formless Divine with love; spontaneous meditation is true worship.
-
-Why wander aimlessly outside, O Soul, without realizing the Divine within yourself?
-
-
-\vspace{0.5em}{\color{bordercolor}\rule{0.4\textwidth}{0.4pt}}\vspace{0.5em}
-
-\subsection*{३. पद ३: आडंबर विरोध आ प्रेम मार्ग {\engfont (Path of Love)}}
-\addcontentsline{toc}{subsection}{३. पद ३: आडंबर विरोध आ प्रेम मार्ग {\engfont (Path of Love)}}
-मूल भोजपुरी पद:
-
-का तिलक छापा का माला, मन के मैल न धोवनवाला।
-
-दरिया प्रेम के एक ही अच्छर, पढ़ि के भइल निहाला॥
-
-भोजपुरी भावार्थ:
-
-माथा पर तिलक लगावे आ माला फेरे से का होई, अगर मन के मैल साफ ना भइल? दरिया साहब कहत बाड़ें कि प्रेम के एकही अक्षर पढ़ के जीवन धन्य आ आनंदित हो जाला।
-
-English Translation:
-
-What use are ritual marks and beads if the mind's impurity remains unwashed?
-
-Dariya says: Learning a single letter of Love fulfills and transforms human life.
-
+\pagenumbering{arabic}
+
+% ===================== MAIN CHAPTERS =====================
+\input{ch01_biography.tex}
+\input{ch02_dariya_sagar.tex}
+\input{ch03_gyan_deepak.tex}
+\input{ch04_bhakti_hetu.tex}
+\input{ch05_prem_gaan.tex}
+\input{ch06_sakhis_appendix.tex}
 
 \end{document}

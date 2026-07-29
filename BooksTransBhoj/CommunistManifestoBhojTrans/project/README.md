@@ -24,8 +24,7 @@ The translation will use Devanagari fonts from the user's local install. If the 
 3. Build or proof output from `tex/`.
 4. Iterate for tone and colloquial vocabulary.
 
-## Notes
+## Status
 
-- Keep the Bhojpuri idioms theth and day-to-day.
-- Use the original meaning but adapt sentence structure to talk like real Bhojpuri.
-- This project is flexible; changes in vocabulary are expected.
+**COMPLETE** — This independent project is finalized and complete. Do not modify.
+

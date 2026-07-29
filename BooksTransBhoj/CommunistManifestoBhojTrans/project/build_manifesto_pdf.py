@@ -132,6 +132,7 @@ latex_content = r"""\documentclass[12pt,a4paper,oneside]{article}
 
 % Fonts Configuration
 \setmainfont{Noto Serif Devanagari}[
+  Renderer=HarfBuzz,
   Script=Devanagari,
   Language=Hindi,
   UprightFont=*-Regular,
